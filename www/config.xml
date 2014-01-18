@@ -1,0 +1,39 @@
+<?xml version='1.0' encoding='utf-8'?>
+<widget id="com.github.foodcoops.payment" version="1.0.0" xmlns="http://www.w3.org/ns/widgets" xmlns:gap="http://phonegap.com/ns/1.0" xmlns:android="http://schemas.android.com/apk/res/android">
+    <name>Foodsoft Payment</name>
+    <description>
+        Payment app for foodsoft, web-based software for non-profit foodcoops.
+    </description>
+    <author email="foodsoft@foodcoop.nl" href="http://www.foodcoop.nl/">
+        Foodsoft Developers
+    </author>
+
+    <feature name="http://api.phonegap.com/1.0/device" />
+    <preference name="phonegap-version" value="3.1.0" />
+    <preference name="permissions" value="none" />
+    <preference name="orientation" value="default" />
+    <preference name="target-device" value="universal" />
+    <preference name="fullscreen" value="false" />
+    <preference name="webviewbounce" value="true" />
+    <preference name="prerendered-icon" value="true" />
+    <preference name="stay-in-webview" value="false" />
+    <preference name="ios-statusbarstyle" value="black-opaque" />
+    <preference name="detect-data-types" value="true" />
+    <preference name="exit-on-suspend" value="false" />
+    <preference name="show-splash-screen-spinner" value="true" />
+    <preference name="auto-hide-splash-screen" value="true" />
+    <preference name="disable-cursor" value="false" />
+    <preference name="android-minSdkVersion" value="7" />
+    <preference name="android-installLocation" value="auto" />
+
+    <gap:platform name="android" />
+
+    <gap:plugin name="nl.x-services.plugins.launchmyapp">
+      <param name="URL_SCHEME" value="foodsoft" />
+    </gap:plugin>
+
+    <icon src="icon.png" />
+
+    <!-- need to access website in iframe -->
+    <access origin="*" />
+</widget>
