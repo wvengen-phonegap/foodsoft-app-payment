@@ -67,8 +67,10 @@ function visitUrl(url) {
       setTimeout(function() {
         // cancel navigation event by revisiting the page :/
         visitSite();
-        // then open url externally
-        window.open(ev.url, '_system');
+        // then open url externally; but after a delay to allow visitSite() to work
+        setTimeout(function() {
+          window.open(ev.url, '_system');
+        }, 1);
       }, 0);
     }
   });
