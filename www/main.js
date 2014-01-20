@@ -1,14 +1,21 @@
 
+var browser;
+
 document.addEventListener('deviceready', function() {
+
   $(function() {
     visitSite();
   });
+
+  $(document).on('pagechangefailed', function(ev, cb) {
+    alert('pagechange failed :( '+cb.toPage);
+  });
+
 });
 
 // catch web intent
 function handleOpenURL(url) {
   var url = $.url(url);
-  // setTimeout needed for iOS
   setTimeout(function() {
     switch(url.attr('host')) {
     case 'set-default': 
@@ -17,7 +24,8 @@ function handleOpenURL(url) {
       break;
     case 'payment-return':
       // on returning from a payment, redirect to that page
-      visitUrl(decodeURI(url.attr('path')) + '?' + url.attr('query'));
+      returnurl = decodeURIComponent(url.attr('path').substring(1));
+      visitUrl(appendQuery(returnurl, url.attr('query')));
       break;
     default:
       // TODO leave app again
@@ -25,6 +33,7 @@ function handleOpenURL(url) {
     }
   }, 0);
 }
+
 
 // open foodsoft website
 function visitSite(path) {
@@ -39,23 +48,31 @@ function visitSite(path) {
   return visitUrl(url+'/'+path);
 }
 
+
 // open url in iframe (with hooks)
 function visitUrl(url) {
+  var page_id = 'foodsoft_adyen_pin';
   // always set mobile_app parameter to indicate we're the app
-  if (url.indexOf('?')>0)
-    var url = url + '&amp;mobile_app=1';
-  else
-    var url = url + '?mobile_app=1';
+  var url = appendQuery(url, 'mobile_app=1');
   // and include token (now we have a query string already)
   if (pref.get('foodsoft_token'))
-    url += '&amp;token='+encodeURI(pref.get('foodsoft_token'));
-  // open in iframe
-  $.mobile.changePage('#page-site', {changeHash: false});
+    url = appendQuery(url, 'token='+encodeURIComponent(pref.get('foodsoft_token')));
+  // load and focus
   $.mobile.loading('show');
-  $('#site-frame').load(function() {
-    $.mobile.loading('hide');
+  browser = window.open(url, '_blank', 'location=no,clearcache=yes');
+  browser.addEventListener('loadstart', function(ev) {
+    if (ev.url.indexOf(pref.get('foodsoft_base'))!=0) {
+      setTimeout(function() {
+        // cancel navigation event by revisiting the page :/
+        visitSite();
+        // then open url externally
+        window.open(ev.url, '_system');
+      }, 0);
+    }
   });
-  $('#site-frame').attr('src', url);
+  browser.addEventListener('exit', function(ev) {
+    browser = null;
+  });
   return true;
 }
 
@@ -75,6 +92,7 @@ function setDefault(base, path, token) {
   return true;
 }
 
+
 // preferences in localStorage
 var pref = {
   set: function(key, val) {
@@ -87,3 +105,12 @@ var pref = {
     return window.localStorage.getItem(key);
   }
 }
+
+// set or append parameters to url query string
+function appendQuery(url, params) {
+  if (url.indexOf('?') >= 0)
+    return url + '&' + params;
+  else
+    return url + '?' + params;
+}
+
