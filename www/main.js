@@ -4,7 +4,8 @@ var browser;
 document.addEventListener('deviceready', function() {
 
   $(function() {
-    visitSite();
+      if (!visitSite())
+        $.mobile.changePage('#page-front', {changeHash: false});
   });
 
   $(document).on('pagechangefailed', function(ev, cb) {
