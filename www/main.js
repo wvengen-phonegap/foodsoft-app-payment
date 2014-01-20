@@ -11,7 +11,7 @@ document.addEventListener('deviceready', function() {
     alert('pagechange failed :( '+cb.toPage);
   });
 
-});
+}, false);
 
 // catch web intent
 function handleOpenURL(url) {
@@ -58,8 +58,9 @@ function visitUrl(url) {
   if (pref.get('foodsoft_token'))
     url = appendQuery(url, 'token='+encodeURIComponent(pref.get('foodsoft_token')));
   // load and focus
+  $.mobile.changePage('#page-site', {changeHash: false});
   $.mobile.loading('show');
-  browser = window.open(url, '_blank', 'location=no,clearcache=yes');
+  browser = window.open(url, '_blank', 'location=no,clearcache=yes,hidden=yes');
   browser.addEventListener('loadstart', function(ev) {
     if (ev.url.indexOf(pref.get('foodsoft_base'))!=0) {
       setTimeout(function() {
@@ -69,6 +70,16 @@ function visitUrl(url) {
         window.open(ev.url, '_system');
       }, 0);
     }
+  });
+  browser.addEventListener('loadstop', function(ev) {
+    $.mobile.loading('hide');
+    browser.show();
+    // when coming back to the main app, exit
+    // http://community.phonegap.com/nitobi/topics/inappbrowser_dev_team_can_you_confirm_theses_issues_or_not#reply_12231482
+    $(window).on('focus', function() {
+      // for now, we exit the app when the inappbrowser is closed
+      navigator.app.exitApp(); // TODO iOS
+    });
   });
   browser.addEventListener('exit', function(ev) {
     browser = null;
